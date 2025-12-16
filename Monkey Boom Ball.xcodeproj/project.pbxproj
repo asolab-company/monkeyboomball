@@ -21,6 +21,8 @@
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		9C0341EA2E69F3980031560C /* Monkey Boom Ball */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = "Monkey Boom Ball";
 			sourceTree = "<group>";
 		};
@@ -177,13 +179,9 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Monkey Boom Ball/Pods-Monkey Boom Ball-resources-${CONFIGURATION}-input-files.xcfilelist",
 			);
-			inputPaths = (
-			);
 			name = "[CP] Copy Pods Resources";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Monkey Boom Ball/Pods-Monkey Boom Ball-resources-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
