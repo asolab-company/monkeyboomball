@@ -3,11 +3,14 @@ workflows:
     name: iOS Workflow
     environment:
       xcode: 16.4
+
       ios_signing:
         distribution_type: app_store
         bundle_identifier: com.monkeyboomball.app
+
       groups:
         - MonkeyBoomBall
+
     scripts:
       - name: Sanity check env
         script: |
@@ -30,19 +33,25 @@ workflows:
           keychain initialize
           keychain add-certificates
 
-      - name: Apply provisioning to project
+      - name: Detect workspace / pods
         script: |
-          xcode-project use-profiles --project "Monkey Boom Ball.xcworkspace"
+          echo "=== Root files ==="
+          ls -la
+          echo "=== Pods/Workspace check ==="
+          test -f "Podfile" && echo "Podfile exists" || echo "Podfile missing"
+          test -d "Pods" && echo "Pods dir exists" || echo "Pods dir missing"
+          test -d "Monkey Boom Ball.xcworkspace" && echo "Workspace exists" || echo "Workspace missing"
 
       - name: Build iOS ipa
         script: |
           xcode-project build-ipa \
-            --project "Monkey Boom Ball.xcworkspace" \
+            --workspace "Monkey Boom Ball.xcworkspace" \
             --scheme "Monkey Boom Ball" \
             --config Release
 
     artifacts:
       - build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
 
     publishing:
       app_store_connect:
