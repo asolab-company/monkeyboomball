@@ -6,16 +6,27 @@ extension Notification.Name {
     static let requestATT = Notification.Name("com.monkey.requestATT")
 }
 
+
 @main
 struct Monkey_Boom_BallApp: App {
-
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
-    @Environment(\.scenePhase) private var scenePhase
+    @StateObject private var rewardedAds = UnityRewardedAds()
     @StateObject var audio = MusicManager.shared
-
+    @Environment(\.scenePhase) private var scenePhase
     var body: some Scene {
         WindowGroup {
-            Main().environmentObject(audio)
+            Main()
+                .environmentObject(rewardedAds)
+                             .onAppear {
+                                 rewardedAds.configure(
+                                     gameId: "6003499",
+                                     placementId: "Rewarded_iOS",
+                                     testMode: false
+                                 )
+                                 rewardedAds.initializeIfNeeded()
+                                 rewardedAds.load()
+                             }
+                .environmentObject(audio)
                 .onAppear {
                     audio.startBGM()
                 }
@@ -32,16 +43,16 @@ struct Monkey_Boom_BallApp: App {
                     }
                 }
                 .onOpenURL { url in
-                    AppsFlyerLib.shared().handleOpen(url, options: [:])
-                }
-                .onContinueUserActivity(NSUserActivityTypeBrowsingWeb) { ua in
-                    AppsFlyerLib.shared().continue(ua, restorationHandler: nil)
-                }
-                .onChange(of: scenePhase) { newPhase in
-                    if newPhase == .active {
-                        appDelegate.handleSceneDidBecomeActive()
-                    }
-                }
+                                   AppsFlyerLib.shared().handleOpen(url, options: [:])
+                               }
+                               .onContinueUserActivity(NSUserActivityTypeBrowsingWeb) { ua in
+                                   AppsFlyerLib.shared().continue(ua, restorationHandler: nil)
+                               }
+                               .onChange(of: scenePhase) { newPhase in
+                                   if newPhase == .active {
+                                       appDelegate.handleSceneDidBecomeActive()
+                                   }
+                               }
         }
     }
 }
@@ -215,3 +226,4 @@ func LOG(
 ) {
     print("📍[\(tag)] \(msg)  — \(file)#\(line) \(funcName)")
 }
+
