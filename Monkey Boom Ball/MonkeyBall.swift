@@ -1,7 +1,7 @@
 import UIKit
 import WebKit
 
-class WakePlan: UIViewController, WKNavigationDelegate {
+class MonkeyBall: UIViewController, WKNavigationDelegate {
 
     private var url: URL!
     private var webView: WKWebView!
