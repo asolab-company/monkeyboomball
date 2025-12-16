@@ -32,12 +32,12 @@ workflows:
 
       - name: Apply provisioning to project
         script: |
-          xcode-project use-profiles --project "Monkey Boom Ball.xcodeproj"
+          xcode-project use-profiles --project "Monkey Boom Ball.xcworkspace"
 
       - name: Build iOS ipa
         script: |
           xcode-project build-ipa \
-            --project "Monkey Boom Ball.xcodeproj" \
+            --project "Monkey Boom Ball.xcworkspace" \
             --scheme "Monkey Boom Ball" \
             --config Release
 
