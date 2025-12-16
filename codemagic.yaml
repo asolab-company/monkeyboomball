@@ -33,21 +33,41 @@ workflows:
           keychain initialize
           keychain add-certificates
 
-      - name: Detect workspace / pods
+      - name: Create export options plist
         script: |
-          echo "=== Root files ==="
-          ls -la
-          echo "=== Pods/Workspace check ==="
-          test -f "Podfile" && echo "Podfile exists" || echo "Podfile missing"
-          test -d "Pods" && echo "Pods dir exists" || echo "Pods dir missing"
-          test -d "Monkey Boom Ball.xcworkspace" && echo "Workspace exists" || echo "Workspace missing"
+          cat > /tmp/export_options.plist <<'PLIST'
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>method</key>
+            <string>app-store</string>
+
+            <key>signingStyle</key>
+            <string>automatic</string>
+
+            <key>destination</key>
+            <string>export</string>
+
+            <key>stripSwiftSymbols</key>
+            <true/>
+
+            <key>compileBitcode</key>
+            <false/>
+          </dict>
+          </plist>
+          PLIST
+
+          echo "=== export_options.plist ==="
+          plutil -p /tmp/export_options.plist
 
       - name: Build iOS ipa
         script: |
           xcode-project build-ipa \
             --workspace "Monkey Boom Ball.xcworkspace" \
             --scheme "Monkey Boom Ball" \
-            --config Release
+            --config Release \
+            --export-options-plist /tmp/export_options.plist
 
     artifacts:
       - build/ios/ipa/*.ipa
