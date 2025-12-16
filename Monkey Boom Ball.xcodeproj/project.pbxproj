@@ -7,11 +7,15 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		9C9042952EC4FFF8003628EC /* AppsFlyerLib in Frameworks */ = {isa = PBXBuildFile; productRef = 9C9042942EC4FFF8003628EC /* AppsFlyerLib */; };
+		9C7138EE2EF1541100C289D8 /* AppsFlyerLib in Frameworks */ = {isa = PBXBuildFile; productRef = 9C7138ED2EF1541100C289D8 /* AppsFlyerLib */; };
+		9F8FFD7762723F0A5B529BDF /* Pods_Monkey_Boom_Ball.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CD7B12092E59F0A0FD3E1D7B /* Pods_Monkey_Boom_Ball.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		30BF188BF1DD749478361568 /* Pods-Monkey Boom Ball.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Monkey Boom Ball.release.xcconfig"; path = "Target Support Files/Pods-Monkey Boom Ball/Pods-Monkey Boom Ball.release.xcconfig"; sourceTree = "<group>"; };
 		9C0341E82E69F3980031560C /* Monkey Boom Ball.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Monkey Boom Ball.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		CD7B12092E59F0A0FD3E1D7B /* Pods_Monkey_Boom_Ball.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Monkey_Boom_Ball.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		FA89DA7E5949C11931B31FE1 /* Pods-Monkey Boom Ball.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Monkey Boom Ball.debug.xcconfig"; path = "Target Support Files/Pods-Monkey Boom Ball/Pods-Monkey Boom Ball.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -27,18 +31,30 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9C9042952EC4FFF8003628EC /* AppsFlyerLib in Frameworks */,
+				9F8FFD7762723F0A5B529BDF /* Pods_Monkey_Boom_Ball.framework in Frameworks */,
+				9C7138EE2EF1541100C289D8 /* AppsFlyerLib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		637A4DBB7589553056DC0755 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				FA89DA7E5949C11931B31FE1 /* Pods-Monkey Boom Ball.debug.xcconfig */,
+				30BF188BF1DD749478361568 /* Pods-Monkey Boom Ball.release.xcconfig */,
+			);
+			path = Pods;
+			sourceTree = "<group>";
+		};
 		9C0341DF2E69F3980031560C = {
 			isa = PBXGroup;
 			children = (
 				9C0341EA2E69F3980031560C /* Monkey Boom Ball */,
 				9C0341E92E69F3980031560C /* Products */,
+				637A4DBB7589553056DC0755 /* Pods */,
+				C2CD8D0EB3264E21A73819E2 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -50,6 +66,14 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		C2CD8D0EB3264E21A73819E2 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				CD7B12092E59F0A0FD3E1D7B /* Pods_Monkey_Boom_Ball.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -57,9 +81,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 9C0341F42E69F39A0031560C /* Build configuration list for PBXNativeTarget "Monkey Boom Ball" */;
 			buildPhases = (
+				192D6C99210F84A68D7089F9 /* [CP] Check Pods Manifest.lock */,
 				9C0341E42E69F3980031560C /* Sources */,
 				9C0341E52E69F3980031560C /* Frameworks */,
 				9C0341E62E69F3980031560C /* Resources */,
+				E629BDEBEFFFB6D04914C492 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -69,9 +95,6 @@
 				9C0341EA2E69F3980031560C /* Monkey Boom Ball */,
 			);
 			name = "Monkey Boom Ball";
-			packageProductDependencies = (
-				9C9042942EC4FFF8003628EC /* AppsFlyerLib */,
-			);
 			productName = "Monkey Boom Ball";
 			productReference = 9C0341E82E69F3980031560C /* Monkey Boom Ball.app */;
 			productType = "com.apple.product-type.application";
@@ -101,7 +124,7 @@
 			mainGroup = 9C0341DF2E69F3980031560C;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				9C9042932EC4FFF8003628EC /* XCRemoteSwiftPackageReference "AppsFlyerFramework" */,
+				9C7138EC2EF1541100C289D8 /* XCRemoteSwiftPackageReference "AppsFlyerFramework" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 9C0341E92E69F3980031560C /* Products */;
@@ -122,6 +145,52 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		192D6C99210F84A68D7089F9 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-Monkey Boom Ball-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		E629BDEBEFFFB6D04914C492 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Monkey Boom Ball/Pods-Monkey Boom Ball-resources-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			inputPaths = (
+			);
+			name = "[CP] Copy Pods Resources";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Monkey Boom Ball/Pods-Monkey Boom Ball-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Monkey Boom Ball/Pods-Monkey Boom Ball-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		9C0341E42E69F3980031560C /* Sources */ = {
@@ -250,6 +319,7 @@
 		};
 		9C0341F52E69F39A0031560C /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = FA89DA7E5949C11931B31FE1 /* Pods-Monkey Boom Ball.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -258,6 +328,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Monkey-Boom-Ball-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Monkey Boom Ball";
@@ -277,7 +348,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 15.5;
-				MARKETING_VERSION = 1.5.0;
+				MARKETING_VERSION = 1.6.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.monkeyboomball.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -294,6 +365,7 @@
 		};
 		9C0341F62E69F39A0031560C /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 30BF188BF1DD749478361568 /* Pods-Monkey Boom Ball.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -302,6 +374,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Monkey-Boom-Ball-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Monkey Boom Ball";
@@ -321,7 +394,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 15.5;
-				MARKETING_VERSION = 1.5.0;
+				MARKETING_VERSION = 1.6.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.monkeyboomball.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -360,20 +433,20 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		9C9042932EC4FFF8003628EC /* XCRemoteSwiftPackageReference "AppsFlyerFramework" */ = {
+		9C7138EC2EF1541100C289D8 /* XCRemoteSwiftPackageReference "AppsFlyerFramework" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/AppsFlyerSDK/AppsFlyerFramework";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 6.17.7;
+				minimumVersion = 6.17.8;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		9C9042942EC4FFF8003628EC /* AppsFlyerLib */ = {
+		9C7138ED2EF1541100C289D8 /* AppsFlyerLib */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 9C9042932EC4FFF8003628EC /* XCRemoteSwiftPackageReference "AppsFlyerFramework" */;
+			package = 9C7138EC2EF1541100C289D8 /* XCRemoteSwiftPackageReference "AppsFlyerFramework" */;
 			productName = AppsFlyerLib;
 		};
 /* End XCSwiftPackageProductDependency section */
