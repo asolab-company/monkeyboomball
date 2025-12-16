@@ -37,7 +37,7 @@ workflows:
       - name: Build iOS ipa
         script: |
           xcode-project build-ipa \
-            --project "Monkey Boom Ball.xcworkspace" \
+            --project "Monkey Boom Ball.xcodeproj" \
             --scheme "Monkey Boom Ball" \
             --config Release
 
