@@ -3,11 +3,9 @@ workflows:
     name: iOS Workflow
     environment:
       xcode: 16.4
-
       ios_signing:
         distribution_type: app_store
         bundle_identifier: com.monkeyboomball.app
-
       groups:
         - MonkeyBoomBall
 
@@ -55,7 +53,31 @@ workflows:
             echo "No Podfile found, skip pod install"
           fi
 
-      - name: Create export options plist (App Store)
+      - name: Apply provisioning profiles to project (xcodeproj)
+        script: |
+          # ВАЖНО: подписывание живёт в targets .xcodeproj, а не в workspace
+          xcode-project use-profiles --project "Monkey Boom Ball.xcodeproj"
+
+      - name: Pick App Store provisioning profile name for export
+        script: |
+          set -e
+
+          PROFILES_DIR="$HOME/Library/MobileDevice/Provisioning Profiles"
+          BUNDLE_ID="com.monkeyboomball.app"
+
+          # берём первый профиль, у которого get-task-allow = false (не dev) и есть наш bundle id
+          PROFILE_PATH="$(grep -rl "$BUNDLE_ID" "$PROFILES_DIR" | head -n 1 || true)"
+          if [ -z "$PROFILE_PATH" ]; then
+            echo "No provisioning profiles found for $BUNDLE_ID in $PROFILES_DIR"
+            exit 1
+          fi
+
+          # вытащим имя профиля (Name) из provisioning profile
+          PROFILE_NAME="$(security cms -D -i "$PROFILE_PATH" | /usr/libexec/PlistBuddy -c 'Print :Name' /dev/stdin)"
+          echo "Using profile: $PROFILE_NAME"
+          echo "PROFILE_NAME=$PROFILE_NAME" >> $CM_ENV
+
+      - name: Create export options plist (manual + provisioningProfiles)
         script: |
           cat > /tmp/export_options.plist <<PLIST
           <?xml version="1.0" encoding="UTF-8"?>
@@ -64,12 +86,25 @@ workflows:
           <dict>
             <key>method</key>
             <string>app-store</string>
+
             <key>signingStyle</key>
-            <string>automatic</string>
+            <string>manual</string>
+
             <key>teamID</key>
             <string>$CM_DEVELOPMENT_TEAM</string>
+
+            <key>signingCertificate</key>
+            <string>Apple Distribution</string>
+
+            <key>provisioningProfiles</key>
+            <dict>
+              <key>com.monkeyboomball.app</key>
+              <string>$PROFILE_NAME</string>
+            </dict>
+
             <key>destination</key>
             <string>export</string>
+
             <key>compileBitcode</key>
             <false/>
             <key>stripSwiftSymbols</key>
@@ -81,7 +116,7 @@ workflows:
           echo "=== export options ==="
           plutil -p /tmp/export_options.plist
 
-      - name: Archive (xcodebuild, automatic signing)
+      - name: Archive (xcodebuild, manual signing)
         script: |
           set -o pipefail
 
@@ -94,13 +129,12 @@ workflows:
             -configuration Release \
             -archivePath "$ARCHIVE_PATH" \
             -sdk iphoneos \
-            -allowProvisioningUpdates \
             archive \
             COMPILER_INDEX_STORE_ENABLE=NO \
             DEVELOPMENT_TEAM="$CM_DEVELOPMENT_TEAM" \
-            CODE_SIGN_STYLE=Automatic \
-            PROVISIONING_PROFILE_SPECIFIER="" \
-            PROVISIONING_PROFILE="" \
+            CODE_SIGN_STYLE=Manual \
+            CODE_SIGN_IDENTITY="Apple Distribution" \
+            IPHONEOS_DEPLOYMENT_TARGET=18.5 \
             | tee "$LOG_PATH"
 
       - name: Export IPA (xcodebuild)
@@ -118,7 +152,6 @@ workflows:
             -archivePath "$ARCHIVE_PATH" \
             -exportPath "$EXPORT_PATH" \
             -exportOptionsPlist /tmp/export_options.plist \
-            -allowProvisioningUpdates \
             | tee "$LOG_PATH"
 
     artifacts:
