@@ -35,14 +35,10 @@ workflows:
             --private-key "$APP_STORE_CONNECT_PRIVATE_KEY" \
             --create
 
-          echo "=== Provisioning profiles installed ==="
-          ls -la "$HOME/Library/MobileDevice/Provisioning Profiles" || true
-
       - name: Setup keychain
         script: |
           keychain initialize
           keychain add-certificates
-          echo "=== Code signing identities ==="
           security find-identity -v -p codesigning || true
 
       - name: Install CocoaPods
@@ -51,8 +47,6 @@ workflows:
             gem install cocoapods -N || true
             pod repo update
             pod install
-          else
-            echo "No Podfile found, skip pod install"
           fi
 
       - name: Disable code signing for Pods targets
@@ -60,14 +54,11 @@ workflows:
           set -euo pipefail
           PODS_PBXPROJ="Pods/Pods.xcodeproj/project.pbxproj"
           if [ -f "$PODS_PBXPROJ" ]; then
-            echo "Patching Pods project to disable signing..."
             sed -i '' 's/CODE_SIGNING_ALLOWED = YES;/CODE_SIGNING_ALLOWED = NO;/g' "$PODS_PBXPROJ" || true
             sed -i '' 's/CODE_SIGNING_REQUIRED = YES;/CODE_SIGNING_REQUIRED = NO;/g' "$PODS_PBXPROJ" || true
-            sed -i '' 's/CODE_SIGN_IDENTITY = .*;/CODE_SIGN_IDENTITY = "";/g' "$PODS_PBXPROJ" || true
             sed -i '' 's/PROVISIONING_PROFILE_SPECIFIER = .*;/PROVISIONING_PROFILE_SPECIFIER = "";/g' "$PODS_PBXPROJ" || true
             sed -i '' 's/PROVISIONING_PROFILE = .*;/PROVISIONING_PROFILE = "";/g' "$PODS_PBXPROJ" || true
-          else
-            echo "No Pods project found, skip."
+            sed -i '' 's/CODE_SIGN_IDENTITY = .*;/CODE_SIGN_IDENTITY = "";/g' "$PODS_PBXPROJ" || true
           fi
 
       - name: Pick App Store provisioning profile name (distribution)
@@ -75,17 +66,14 @@ workflows:
           set -euo pipefail
           PROFILES_DIR="$HOME/Library/MobileDevice/Provisioning Profiles"
           BUNDLE_ID="com.monkeyboomball.app"
-
           DIST_PROFILE_NAME=""
 
           shopt -s nullglob
           for f in "$PROFILES_DIR"/*.mobileprovision; do
             plist="$(security cms -D -i "$f" 2>/dev/null || true)"
             [ -n "$plist" ] || continue
-
             gta="$(echo "$plist" | /usr/libexec/PlistBuddy -c 'Print :Entitlements:get-task-allow' /dev/stdin 2>/dev/null || true)"
             [ "$gta" = "false" ] || continue
-
             appid="$(echo "$plist" | /usr/libexec/PlistBuddy -c 'Print :Entitlements:application-identifier' /dev/stdin 2>/dev/null || true)"
             case "$appid" in
               *".$BUNDLE_ID" )
@@ -100,13 +88,9 @@ workflows:
 
           test -n "$DIST_PROFILE_NAME" || (echo "No App Store (distribution) profile found for $BUNDLE_ID" && exit 1)
           echo "DIST_PROFILE_NAME=$DIST_PROFILE_NAME" >> "$CM_ENV"
-          echo "Using distribution profile: $DIST_PROFILE_NAME"
 
-      - name: Create export options plist (manual)
+      - name: Create export options plist (manual export)
         script: |
-          set -euo pipefail
-          test -n "${DIST_PROFILE_NAME:-}" || (echo "DIST_PROFILE_NAME is empty" && exit 1)
-
           cat > /tmp/export_options.plist <<PLIST
           <?xml version="1.0" encoding="UTF-8"?>
           <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -114,45 +98,25 @@ workflows:
           <dict>
             <key>method</key>
             <string>app-store</string>
-
             <key>signingStyle</key>
             <string>manual</string>
-
             <key>teamID</key>
             <string>$CM_DEVELOPMENT_TEAM</string>
-
             <key>signingCertificate</key>
             <string>Apple Distribution</string>
-
             <key>provisioningProfiles</key>
             <dict>
               <key>com.monkeyboomball.app</key>
               <string>$DIST_PROFILE_NAME</string>
             </dict>
-
-            <key>destination</key>
-            <string>export</string>
-
-            <key>compileBitcode</key>
-            <false/>
-
-            <key>stripSwiftSymbols</key>
-            <true/>
           </dict>
           </plist>
           PLIST
 
-          echo "=== export options ==="
-          plutil -p /tmp/export_options.plist
-
-      - name: Archive (xcodebuild)
+      - name: Archive (xcodebuild, no identity override)
         script: |
           set -o pipefail
-
           ARCHIVE_PATH="/Users/builder/clone/build/ios/xcarchive/MonkeyBoomBall.xcarchive"
-          LOG_PATH="/tmp/xcodebuild_archive.log"
-
-          # ВАЖНО: НЕ передаем PROVISIONING_PROFILE_SPECIFIER глобально, иначе оно применится к Pods
           xcodebuild \
             -workspace "Monkey Boom Ball.xcworkspace" \
             -scheme "Monkey Boom Ball" \
@@ -162,32 +126,22 @@ workflows:
             archive \
             COMPILER_INDEX_STORE_ENABLE=NO \
             DEVELOPMENT_TEAM="$CM_DEVELOPMENT_TEAM" \
-            CODE_SIGN_IDENTITY="Apple Distribution" \
-            IPHONEOS_DEPLOYMENT_TARGET=18.5 \
-            | tee "$LOG_PATH"
+            IPHONEOS_DEPLOYMENT_TARGET=18.5
 
       - name: Export IPA (xcodebuild)
         script: |
           set -o pipefail
-
           ARCHIVE_PATH="/Users/builder/clone/build/ios/xcarchive/MonkeyBoomBall.xcarchive"
           EXPORT_PATH="build/ios/ipa"
-          LOG_PATH="/tmp/xcodebuild_export.log"
-
           mkdir -p "$EXPORT_PATH"
-
           xcodebuild \
             -exportArchive \
             -archivePath "$ARCHIVE_PATH" \
             -exportPath "$EXPORT_PATH" \
-            -exportOptionsPlist /tmp/export_options.plist \
-            | tee "$LOG_PATH"
+            -exportOptionsPlist /tmp/export_options.plist
 
     artifacts:
       - build/ios/ipa/*.ipa
-      - /tmp/xcodebuild_archive.log
-      - /tmp/xcodebuild_export.log
-      - /tmp/xcodebuild_logs/*.log
 
     publishing:
       app_store_connect:
