@@ -35,9 +35,6 @@ workflows:
             --private-key "$APP_STORE_CONNECT_PRIVATE_KEY" \
             --create
 
-          echo "=== Provisioning profiles installed ==="
-          ls -la "$HOME/Library/MobileDevice/Provisioning Profiles" || true
-
       - name: Setup keychain
         script: |
           keychain initialize
@@ -56,19 +53,15 @@ workflows:
       - name: Pick App Store provisioning profile name (distribution)
         script: |
           set -euo pipefail
-
           PROFILES_DIR="$HOME/Library/MobileDevice/Provisioning Profiles"
           BUNDLE_ID="com.monkeyboomball.app"
 
           DIST_PROFILE_NAME=""
-          DIST_PROFILE_PATH=""
-
           shopt -s nullglob
           for f in "$PROFILES_DIR"/*.mobileprovision; do
             plist="$(security cms -D -i "$f" 2>/dev/null || true)"
             [ -n "$plist" ] || continue
 
-            # distribution profile -> get-task-allow must be false
             gta="$(echo "$plist" | /usr/libexec/PlistBuddy -c 'Print :Entitlements:get-task-allow' /dev/stdin 2>/dev/null || true)"
             [ "$gta" = "false" ] || continue
 
@@ -78,22 +71,13 @@ workflows:
                 name="$(echo "$plist" | /usr/libexec/PlistBuddy -c 'Print :Name' /dev/stdin 2>/dev/null || true)"
                 [ -n "$name" ] || continue
                 DIST_PROFILE_NAME="$name"
-                DIST_PROFILE_PATH="$f"
                 break
                 ;;
             esac
           done
           shopt -u nullglob
 
-          if [ -z "$DIST_PROFILE_NAME" ]; then
-            echo "ERROR: No App Store (distribution) provisioning profile found for $BUNDLE_ID"
-            exit 1
-          fi
-
-          echo "Using distribution provisioning profile:"
-          echo "  Name: $DIST_PROFILE_NAME"
-          echo "  File: $DIST_PROFILE_PATH"
-
+          test -n "$DIST_PROFILE_NAME" || (echo "No distribution profile found for $BUNDLE_ID" && exit 1)
           echo "DIST_PROFILE_NAME=$DIST_PROFILE_NAME" >> "$CM_ENV"
 
       - name: Create export options plist (manual + provisioningProfiles)
@@ -108,22 +92,19 @@ workflows:
           <dict>
             <key>method</key>
             <string>app-store</string>
-
             <key>signingStyle</key>
             <string>manual</string>
-
             <key>teamID</key>
             <string>$CM_DEVELOPMENT_TEAM</string>
-
+            <key>signingCertificate</key>
+            <string>Apple Distribution</string>
             <key>provisioningProfiles</key>
             <dict>
               <key>com.monkeyboomball.app</key>
               <string>$DIST_PROFILE_NAME</string>
             </dict>
-
             <key>destination</key>
             <string>export</string>
-
             <key>compileBitcode</key>
             <false/>
             <key>stripSwiftSymbols</key>
@@ -132,9 +113,7 @@ workflows:
           </plist>
           PLIST
 
-          plutil -p /tmp/export_options.plist
-
-      - name: Archive (xcodebuild, force App Store profile)
+      - name: Archive (xcodebuild, App Store profile + Apple Distribution)
         script: |
           set -o pipefail
 
@@ -151,6 +130,8 @@ workflows:
             COMPILER_INDEX_STORE_ENABLE=NO \
             DEVELOPMENT_TEAM="$CM_DEVELOPMENT_TEAM" \
             CODE_SIGN_STYLE=Manual \
+            CODE_SIGN_IDENTITY="Apple Distribution" \
+            CODE_SIGNING_ALLOWED=YES \
             PROVISIONING_PROFILE_SPECIFIER="$DIST_PROFILE_NAME" \
             PROVISIONING_PROFILE="" \
             IPHONEOS_DEPLOYMENT_TARGET=18.5 \
