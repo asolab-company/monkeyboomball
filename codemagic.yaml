@@ -53,65 +53,53 @@ workflows:
             echo "No Podfile found, skip pod install"
           fi
 
-      - name: Apply provisioning profiles to project (xcodeproj)
-        script: |
-          xcode-project use-profiles --project "Monkey Boom Ball.xcodeproj"
-
-      - name: Pick App Store provisioning profile name for export
+      - name: Pick App Store provisioning profile name (distribution)
         script: |
           set -euo pipefail
 
           PROFILES_DIR="$HOME/Library/MobileDevice/Provisioning Profiles"
           BUNDLE_ID="com.monkeyboomball.app"
 
-          echo "Scanning provisioning profiles in: $PROFILES_DIR"
-          ls -la "$PROFILES_DIR" || true
-
-          PROFILE_NAME=""
-          PROFILE_PATH=""
+          DIST_PROFILE_NAME=""
+          DIST_PROFILE_PATH=""
 
           shopt -s nullglob
           for f in "$PROFILES_DIR"/*.mobileprovision; do
             plist="$(security cms -D -i "$f" 2>/dev/null || true)"
-            if [ -z "$plist" ]; then
-              continue
-            fi
+            [ -n "$plist" ] || continue
 
+            # distribution profile -> get-task-allow must be false
             gta="$(echo "$plist" | /usr/libexec/PlistBuddy -c 'Print :Entitlements:get-task-allow' /dev/stdin 2>/dev/null || true)"
-            if [ "$gta" != "false" ]; then
-              continue
-            fi
+            [ "$gta" = "false" ] || continue
 
             appid="$(echo "$plist" | /usr/libexec/PlistBuddy -c 'Print :Entitlements:application-identifier' /dev/stdin 2>/dev/null || true)"
             case "$appid" in
               *".$BUNDLE_ID" )
                 name="$(echo "$plist" | /usr/libexec/PlistBuddy -c 'Print :Name' /dev/stdin 2>/dev/null || true)"
-                if [ -n "$name" ]; then
-                  PROFILE_NAME="$name"
-                  PROFILE_PATH="$f"
-                  break
-                fi
+                [ -n "$name" ] || continue
+                DIST_PROFILE_NAME="$name"
+                DIST_PROFILE_PATH="$f"
+                break
                 ;;
             esac
           done
           shopt -u nullglob
 
-          if [ -z "$PROFILE_NAME" ]; then
-            echo "ERROR: No App Store-like provisioning profile found for $BUNDLE_ID"
-            echo "Hint: ensure fetch-signing-files downloaded IOS_APP_STORE for $BUNDLE_ID"
+          if [ -z "$DIST_PROFILE_NAME" ]; then
+            echo "ERROR: No App Store (distribution) provisioning profile found for $BUNDLE_ID"
             exit 1
           fi
 
-          echo "Using provisioning profile:"
-          echo "  Name: $PROFILE_NAME"
-          echo "  File: $PROFILE_PATH"
+          echo "Using distribution provisioning profile:"
+          echo "  Name: $DIST_PROFILE_NAME"
+          echo "  File: $DIST_PROFILE_PATH"
 
-          echo "PROFILE_NAME=$PROFILE_NAME" >> "$CM_ENV"
+          echo "DIST_PROFILE_NAME=$DIST_PROFILE_NAME" >> "$CM_ENV"
 
-      - name: Create export options plist (manual)
+      - name: Create export options plist (manual + provisioningProfiles)
         script: |
           set -euo pipefail
-          test -n "${PROFILE_NAME:-}" || (echo "PROFILE_NAME is empty" && exit 1)
+          test -n "${DIST_PROFILE_NAME:-}" || (echo "DIST_PROFILE_NAME is empty" && exit 1)
 
           cat > /tmp/export_options.plist <<PLIST
           <?xml version="1.0" encoding="UTF-8"?>
@@ -127,13 +115,10 @@ workflows:
             <key>teamID</key>
             <string>$CM_DEVELOPMENT_TEAM</string>
 
-            <key>signingCertificate</key>
-            <string>Apple Distribution</string>
-
             <key>provisioningProfiles</key>
             <dict>
               <key>com.monkeyboomball.app</key>
-              <string>$PROFILE_NAME</string>
+              <string>$DIST_PROFILE_NAME</string>
             </dict>
 
             <key>destination</key>
@@ -141,17 +126,15 @@ workflows:
 
             <key>compileBitcode</key>
             <false/>
-
             <key>stripSwiftSymbols</key>
             <true/>
           </dict>
           </plist>
           PLIST
 
-          echo "=== export options ==="
           plutil -p /tmp/export_options.plist
 
-      - name: Archive (xcodebuild, manual signing)
+      - name: Archive (xcodebuild, force App Store profile)
         script: |
           set -o pipefail
 
@@ -168,7 +151,8 @@ workflows:
             COMPILER_INDEX_STORE_ENABLE=NO \
             DEVELOPMENT_TEAM="$CM_DEVELOPMENT_TEAM" \
             CODE_SIGN_STYLE=Manual \
-            CODE_SIGN_IDENTITY="Apple Distribution" \
+            PROVISIONING_PROFILE_SPECIFIER="$DIST_PROFILE_NAME" \
+            PROVISIONING_PROFILE="" \
             IPHONEOS_DEPLOYMENT_TARGET=18.5 \
             | tee "$LOG_PATH"
 
