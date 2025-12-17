@@ -33,6 +33,10 @@ workflows:
           keychain initialize
           keychain add-certificates
 
+      - name: Apply provisioning profiles (to xcodeproj, not workspace)
+        script: |
+          xcode-project use-profiles --project "Monkey Boom Ball.xcodeproj"
+
       - name: Create export options plist
         script: |
           cat > /tmp/export_options.plist <<'PLIST'
@@ -42,26 +46,17 @@ workflows:
           <dict>
             <key>method</key>
             <string>app-store</string>
-
-            <key>signingStyle</key>
-            <string>automatic</string>
-
             <key>destination</key>
             <string>export</string>
-
-            <key>stripSwiftSymbols</key>
-            <true/>
-
+            <key>signingStyle</key>
+            <string>manual</string>
             <key>compileBitcode</key>
             <false/>
           </dict>
           </plist>
           PLIST
 
-          echo "=== export_options.plist ==="
-          plutil -p /tmp/export_options.plist
-
-      - name: Build iOS ipa
+      - name: Build iOS ipa (workspace)
         script: |
           xcode-project build-ipa \
             --workspace "Monkey Boom Ball.xcworkspace" \
