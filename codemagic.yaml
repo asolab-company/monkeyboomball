@@ -32,12 +32,17 @@ workflows:
           keychain initialize
           keychain add-certificates
 
-      # ВАЖНО: применяем профили к xcodeproj, не к workspace
-      - name: Apply provisioning to project (xcodeproj)
+      - name: Install CocoaPods
         script: |
-          xcode-project use-profiles --project "Monkey Boom Ball.xcodeproj"
+          # если Pods добавлены — в CI обязательно pod install
+          if [ -f "Podfile" ]; then
+            gem install cocoapods -N || true
+            pod repo update
+            pod install
+          else
+            echo "No Podfile found, skip pod install"
+          fi
 
-      # ВАЖНО: exportOptions нужен для export IPA
       - name: Create export options plist
         script: |
           cat > /tmp/export_options.plist <<PLIST
@@ -60,17 +65,52 @@ workflows:
           </dict>
           </plist>
           PLIST
+          plutil -p /tmp/export_options.plist
 
-      - name: Build iOS ipa (workspace)
+      - name: Archive (xcodebuild)
         script: |
-          xcode-project build-ipa \
-            --workspace "Monkey Boom Ball.xcworkspace" \
-            --scheme "Monkey Boom Ball" \
-            --config Release \
-            --export-options-plist /tmp/export_options.plist
+          set -o pipefail
+
+          ARCHIVE_PATH="/Users/builder/clone/build/ios/xcarchive/MonkeyBoomBall.xcarchive"
+          LOG_PATH="/tmp/xcodebuild_archive.log"
+
+          xcodebuild \
+            -workspace "Monkey Boom Ball.xcworkspace" \
+            -scheme "Monkey Boom Ball" \
+            -configuration Release \
+            -archivePath "$ARCHIVE_PATH" \
+            -sdk iphoneos \
+            archive \
+            COMPILER_INDEX_STORE_ENABLE=NO \
+            DEVELOPMENT_TEAM="$CM_DEVELOPMENT_TEAM" \
+            CODE_SIGN_STYLE=Automatic \
+            PROVISIONING_PROFILE_SPECIFIER="" \
+            PROVISIONING_PROFILE="" \
+            | tee "$LOG_PATH"
+
+          # если xcodebuild вернул ошибку, pipeline уже упадёт из-за pipefail
+
+      - name: Export IPA (xcodebuild)
+        script: |
+          set -o pipefail
+
+          ARCHIVE_PATH="/Users/builder/clone/build/ios/xcarchive/MonkeyBoomBall.xcarchive"
+          EXPORT_PATH="build/ios/ipa"
+          LOG_PATH="/tmp/xcodebuild_export.log"
+
+          mkdir -p "$EXPORT_PATH"
+
+          xcodebuild \
+            -exportArchive \
+            -archivePath "$ARCHIVE_PATH" \
+            -exportPath "$EXPORT_PATH" \
+            -exportOptionsPlist /tmp/export_options.plist \
+            | tee "$LOG_PATH"
 
     artifacts:
       - build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_archive.log
+      - /tmp/xcodebuild_export.log
       - /tmp/xcodebuild_logs/*.log
 
     publishing:
