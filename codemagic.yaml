@@ -55,30 +55,64 @@ workflows:
 
       - name: Apply provisioning profiles to project (xcodeproj)
         script: |
-          # ВАЖНО: подписывание живёт в targets .xcodeproj, а не в workspace
           xcode-project use-profiles --project "Monkey Boom Ball.xcodeproj"
 
       - name: Pick App Store provisioning profile name for export
         script: |
-          set -e
+          set -euo pipefail
 
           PROFILES_DIR="$HOME/Library/MobileDevice/Provisioning Profiles"
           BUNDLE_ID="com.monkeyboomball.app"
 
-          # берём первый профиль, у которого get-task-allow = false (не dev) и есть наш bundle id
-          PROFILE_PATH="$(grep -rl "$BUNDLE_ID" "$PROFILES_DIR" | head -n 1 || true)"
-          if [ -z "$PROFILE_PATH" ]; then
-            echo "No provisioning profiles found for $BUNDLE_ID in $PROFILES_DIR"
+          echo "Scanning provisioning profiles in: $PROFILES_DIR"
+          ls -la "$PROFILES_DIR" || true
+
+          PROFILE_NAME=""
+          PROFILE_PATH=""
+
+          shopt -s nullglob
+          for f in "$PROFILES_DIR"/*.mobileprovision; do
+            plist="$(security cms -D -i "$f" 2>/dev/null || true)"
+            if [ -z "$plist" ]; then
+              continue
+            fi
+
+            gta="$(echo "$plist" | /usr/libexec/PlistBuddy -c 'Print :Entitlements:get-task-allow' /dev/stdin 2>/dev/null || true)"
+            if [ "$gta" != "false" ]; then
+              continue
+            fi
+
+            appid="$(echo "$plist" | /usr/libexec/PlistBuddy -c 'Print :Entitlements:application-identifier' /dev/stdin 2>/dev/null || true)"
+            case "$appid" in
+              *".$BUNDLE_ID" )
+                name="$(echo "$plist" | /usr/libexec/PlistBuddy -c 'Print :Name' /dev/stdin 2>/dev/null || true)"
+                if [ -n "$name" ]; then
+                  PROFILE_NAME="$name"
+                  PROFILE_PATH="$f"
+                  break
+                fi
+                ;;
+            esac
+          done
+          shopt -u nullglob
+
+          if [ -z "$PROFILE_NAME" ]; then
+            echo "ERROR: No App Store-like provisioning profile found for $BUNDLE_ID"
+            echo "Hint: ensure fetch-signing-files downloaded IOS_APP_STORE for $BUNDLE_ID"
             exit 1
           fi
 
-          # вытащим имя профиля (Name) из provisioning profile
-          PROFILE_NAME="$(security cms -D -i "$PROFILE_PATH" | /usr/libexec/PlistBuddy -c 'Print :Name' /dev/stdin)"
-          echo "Using profile: $PROFILE_NAME"
-          echo "PROFILE_NAME=$PROFILE_NAME" >> $CM_ENV
+          echo "Using provisioning profile:"
+          echo "  Name: $PROFILE_NAME"
+          echo "  File: $PROFILE_PATH"
 
-      - name: Create export options plist (manual + provisioningProfiles)
+          echo "PROFILE_NAME=$PROFILE_NAME" >> "$CM_ENV"
+
+      - name: Create export options plist (manual)
         script: |
+          set -euo pipefail
+          test -n "${PROFILE_NAME:-}" || (echo "PROFILE_NAME is empty" && exit 1)
+
           cat > /tmp/export_options.plist <<PLIST
           <?xml version="1.0" encoding="UTF-8"?>
           <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -107,6 +141,7 @@ workflows:
 
             <key>compileBitcode</key>
             <false/>
+
             <key>stripSwiftSymbols</key>
             <true/>
           </dict>
