@@ -3,11 +3,9 @@ workflows:
     name: iOS Workflow
     environment:
       xcode: 16.4
-
       ios_signing:
         distribution_type: app_store
         bundle_identifier: com.monkeyboomball.app
-
       groups:
         - MonkeyBoomBall
 
@@ -17,6 +15,7 @@ workflows:
           test -n "$APP_STORE_CONNECT_ISSUER_ID" || (echo "ISSUER_ID empty" && exit 1)
           test -n "$APP_STORE_CONNECT_KEY_ID" || (echo "KEY_ID empty" && exit 1)
           test -n "$APP_STORE_CONNECT_PRIVATE_KEY" || (echo "PRIVATE_KEY empty" && exit 1)
+          test -n "$CM_DEVELOPMENT_TEAM" || (echo "CM_DEVELOPMENT_TEAM empty (Apple Team ID)" && exit 1)
 
       - name: Fetch signing files
         script: |
@@ -33,25 +32,31 @@ workflows:
           keychain initialize
           keychain add-certificates
 
-      - name: Apply provisioning profiles (to xcodeproj, not workspace)
+      # ВАЖНО: применяем профили к xcodeproj, не к workspace
+      - name: Apply provisioning to project (xcodeproj)
         script: |
           xcode-project use-profiles --project "Monkey Boom Ball.xcodeproj"
 
+      # ВАЖНО: exportOptions нужен для export IPA
       - name: Create export options plist
         script: |
-          cat > /tmp/export_options.plist <<'PLIST'
+          cat > /tmp/export_options.plist <<PLIST
           <?xml version="1.0" encoding="UTF-8"?>
           <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
           <plist version="1.0">
           <dict>
             <key>method</key>
             <string>app-store</string>
+            <key>signingStyle</key>
+            <string>automatic</string>
+            <key>teamID</key>
+            <string>$CM_DEVELOPMENT_TEAM</string>
             <key>destination</key>
             <string>export</string>
-            <key>signingStyle</key>
-            <string>manual</string>
             <key>compileBitcode</key>
             <false/>
+            <key>stripSwiftSymbols</key>
+            <true/>
           </dict>
           </plist>
           PLIST
