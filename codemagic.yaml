@@ -17,7 +17,7 @@ workflows:
           test -n "$APP_STORE_CONNECT_PRIVATE_KEY" || (echo "PRIVATE_KEY empty" && exit 1)
           test -n "$CM_DEVELOPMENT_TEAM" || (echo "CM_DEVELOPMENT_TEAM empty (Apple Team ID)" && exit 1)
 
-      - name: Fetch signing files (App Store + Development)
+      - name: Fetch signing files (App Store)
         script: |
           app-store-connect fetch-signing-files \
             "com.monkeyboomball.app" \
@@ -27,13 +27,8 @@ workflows:
             --private-key "$APP_STORE_CONNECT_PRIVATE_KEY" \
             --create
 
-          app-store-connect fetch-signing-files \
-            "com.monkeyboomball.app" \
-            --type IOS_APP_DEVELOPMENT \
-            --issuer-id "$APP_STORE_CONNECT_ISSUER_ID" \
-            --key-id "$APP_STORE_CONNECT_KEY_ID" \
-            --private-key "$APP_STORE_CONNECT_PRIVATE_KEY" \
-            --create
+          echo "=== Provisioning profiles installed ==="
+          ls -la "$HOME/Library/MobileDevice/Provisioning Profiles" || true
 
       - name: Setup keychain
         script: |
@@ -79,8 +74,24 @@ workflows:
 
           test -n "$DIST_PROFILE_NAME" || (echo "No distribution profile found for $BUNDLE_ID" && exit 1)
           echo "DIST_PROFILE_NAME=$DIST_PROFILE_NAME" >> "$CM_ENV"
+          echo "Using profile: $DIST_PROFILE_NAME"
 
-      - name: Create export options plist (manual + provisioningProfiles)
+      - name: Disable code signing for Pods targets
+        script: |
+          set -euo pipefail
+          PODS_PBXPROJ="Pods/Pods.xcodeproj/project.pbxproj"
+          if [ -f "$PODS_PBXPROJ" ]; then
+            echo "Patching $PODS_PBXPROJ to disable code signing for Pods targets..."
+            sed -i '' 's/CODE_SIGNING_ALLOWED = YES;/CODE_SIGNING_ALLOWED = NO;/g' "$PODS_PBXPROJ" || true
+            sed -i '' 's/CODE_SIGNING_REQUIRED = YES;/CODE_SIGNING_REQUIRED = NO;/g' "$PODS_PBXPROJ" || true
+            sed -i '' 's/CODE_SIGN_IDENTITY = .*;/CODE_SIGN_IDENTITY = "";/g' "$PODS_PBXPROJ" || true
+            sed -i '' 's/PROVISIONING_PROFILE_SPECIFIER = .*;/PROVISIONING_PROFILE_SPECIFIER = "";/g' "$PODS_PBXPROJ" || true
+            sed -i '' 's/PROVISIONING_PROFILE = .*;/PROVISIONING_PROFILE = "";/g' "$PODS_PBXPROJ" || true
+          else
+            echo "No Pods project found, skip."
+          fi
+
+      - name: Create export options plist (manual)
         script: |
           set -euo pipefail
           test -n "${DIST_PROFILE_NAME:-}" || (echo "DIST_PROFILE_NAME is empty" && exit 1)
@@ -113,7 +124,7 @@ workflows:
           </plist>
           PLIST
 
-      - name: Archive (xcodebuild, App Store profile + Apple Distribution)
+      - name: Archive (xcodebuild)
         script: |
           set -o pipefail
 
@@ -132,7 +143,7 @@ workflows:
             CODE_SIGN_STYLE=Manual \
             CODE_SIGN_IDENTITY="Apple Distribution" \
             CODE_SIGNING_ALLOWED=YES \
-            PROVISIONING_PROFILE_SPECIFIER="$DIST_PROFILE_NAME" \
+            "PROVISIONING_PROFILE_SPECIFIER=$DIST_PROFILE_NAME" \
             PROVISIONING_PROFILE="" \
             IPHONEOS_DEPLOYMENT_TARGET=18.5 \
             | tee "$LOG_PATH"
