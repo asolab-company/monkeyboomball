@@ -3,11 +3,14 @@ workflows:
     name: iOS Workflow
     environment:
       xcode: 16.4
+
       ios_signing:
         distribution_type: app_store
         bundle_identifier: com.monkeyboomball.app
+
       groups:
         - MonkeyBoomBall
+
     scripts:
       - name: Sanity check env
         script: |
@@ -30,19 +33,45 @@ workflows:
           keychain initialize
           keychain add-certificates
 
-      - name: Apply provisioning to project
+      - name: Create export options plist
         script: |
-          xcode-project use-profiles --project "Monkey Boom Ball.xcodeproj"
+          cat > /tmp/export_options.plist <<'PLIST'
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>method</key>
+            <string>app-store</string>
+
+            <key>signingStyle</key>
+            <string>automatic</string>
+
+            <key>destination</key>
+            <string>export</string>
+
+            <key>stripSwiftSymbols</key>
+            <true/>
+
+            <key>compileBitcode</key>
+            <false/>
+          </dict>
+          </plist>
+          PLIST
+
+          echo "=== export_options.plist ==="
+          plutil -p /tmp/export_options.plist
 
       - name: Build iOS ipa
         script: |
           xcode-project build-ipa \
-            --project "Monkey Boom Ball.xcodeproj" \
+            --workspace "Monkey Boom Ball.xcworkspace" \
             --scheme "Monkey Boom Ball" \
-            --config Release
+            --config Release \
+            --export-options-plist /tmp/export_options.plist
 
     artifacts:
       - build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
 
     publishing:
       app_store_connect:
