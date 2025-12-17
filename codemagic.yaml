@@ -1,6 +1,8 @@
 workflows:
   ios-workflow:
     name: iOS Workflow
+    max_build_duration: 120
+
     environment:
       xcode: 16.4
       ios_signing:
@@ -8,15 +10,18 @@ workflows:
         bundle_identifier: com.monkeyboomball.app
       groups:
         - MonkeyBoomBall
+
     scripts:
       - name: Sanity check env
         script: |
+          set -e
           test -n "$APP_STORE_CONNECT_ISSUER_ID" || (echo "ISSUER_ID empty" && exit 1)
           test -n "$APP_STORE_CONNECT_KEY_ID" || (echo "KEY_ID empty" && exit 1)
           test -n "$APP_STORE_CONNECT_PRIVATE_KEY" || (echo "PRIVATE_KEY empty" && exit 1)
 
       - name: Fetch signing files
         script: |
+          set -e
           app-store-connect fetch-signing-files \
             "com.monkeyboomball.app" \
             --type IOS_APP_STORE \
@@ -27,22 +32,32 @@ workflows:
 
       - name: Setup keychain
         script: |
+          set -e
           keychain initialize
           keychain add-certificates
 
+      - name: Install CocoaPods
+        script: |
+          set -e
+          pod install --repo-update
+
       - name: Apply provisioning to project
         script: |
-          xcode-project use-profiles --project "Monkey Boom Ball.xcworkspace"
+          set -e
+          xcode-project use-profiles --project "Monkey Boom Ball.xcodeproj"
 
       - name: Build iOS ipa
         script: |
+          set -e
           xcode-project build-ipa \
-            --project "Monkey Boom Ball.xcworkspace" \
+            --workspace "Monkey Boom Ball.xcworkspace" \
             --scheme "Monkey Boom Ball" \
             --config Release
 
     artifacts:
       - build/ios/ipa/*.ipa
+      - build/ios/logs/*.log
+      - $HOME/Library/Logs/xcodebuild/*.log
 
     publishing:
       app_store_connect:
