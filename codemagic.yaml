@@ -1,6 +1,6 @@
 workflows:
   ios-workflow:
-    name: iOS Workflow (Pods + App Store)
+    name: iOS Workflow
     environment:
       xcode: 16.4
       ios_signing:
@@ -8,16 +8,14 @@ workflows:
         bundle_identifier: com.monkeyboomball.app
       groups:
         - MonkeyBoomBall
-
     scripts:
       - name: Sanity check env
         script: |
           test -n "$APP_STORE_CONNECT_ISSUER_ID" || (echo "ISSUER_ID empty" && exit 1)
           test -n "$APP_STORE_CONNECT_KEY_ID" || (echo "KEY_ID empty" && exit 1)
           test -n "$APP_STORE_CONNECT_PRIVATE_KEY" || (echo "PRIVATE_KEY empty" && exit 1)
-          test -n "$CM_DEVELOPMENT_TEAM" || (echo "CM_DEVELOPMENT_TEAM empty (Apple Team ID)" && exit 1)
 
-      - name: Fetch signing files (App Store + Dev)
+      - name: Fetch signing files
         script: |
           app-store-connect fetch-signing-files \
             "com.monkeyboomball.app" \
@@ -27,118 +25,21 @@ workflows:
             --private-key "$APP_STORE_CONNECT_PRIVATE_KEY" \
             --create
 
-          app-store-connect fetch-signing-files \
-            "com.monkeyboomball.app" \
-            --type IOS_APP_DEVELOPMENT \
-            --issuer-id "$APP_STORE_CONNECT_ISSUER_ID" \
-            --key-id "$APP_STORE_CONNECT_KEY_ID" \
-            --private-key "$APP_STORE_CONNECT_PRIVATE_KEY" \
-            --create
-
       - name: Setup keychain
         script: |
           keychain initialize
           keychain add-certificates
-          security find-identity -v -p codesigning || true
 
-      - name: Install CocoaPods
+      - name: Apply provisioning to project
         script: |
-          if [ -f "Podfile" ]; then
-            gem install cocoapods -N || true
-            pod repo update
-            pod install
-          fi
+          xcode-project use-profiles --project "Monkey Boom Ball.xcworkspace"
 
-      - name: Disable code signing for Pods targets
+      - name: Build iOS ipa
         script: |
-          set -euo pipefail
-          PODS_PBXPROJ="Pods/Pods.xcodeproj/project.pbxproj"
-          if [ -f "$PODS_PBXPROJ" ]; then
-            sed -i '' 's/CODE_SIGNING_ALLOWED = YES;/CODE_SIGNING_ALLOWED = NO;/g' "$PODS_PBXPROJ" || true
-            sed -i '' 's/CODE_SIGNING_REQUIRED = YES;/CODE_SIGNING_REQUIRED = NO;/g' "$PODS_PBXPROJ" || true
-            sed -i '' 's/PROVISIONING_PROFILE_SPECIFIER = .*;/PROVISIONING_PROFILE_SPECIFIER = "";/g' "$PODS_PBXPROJ" || true
-            sed -i '' 's/PROVISIONING_PROFILE = .*;/PROVISIONING_PROFILE = "";/g' "$PODS_PBXPROJ" || true
-            sed -i '' 's/CODE_SIGN_IDENTITY = .*;/CODE_SIGN_IDENTITY = "";/g' "$PODS_PBXPROJ" || true
-          fi
-
-      - name: Pick App Store provisioning profile name (distribution)
-        script: |
-          set -euo pipefail
-          PROFILES_DIR="$HOME/Library/MobileDevice/Provisioning Profiles"
-          BUNDLE_ID="com.monkeyboomball.app"
-          DIST_PROFILE_NAME=""
-
-          shopt -s nullglob
-          for f in "$PROFILES_DIR"/*.mobileprovision; do
-            plist="$(security cms -D -i "$f" 2>/dev/null || true)"
-            [ -n "$plist" ] || continue
-            gta="$(echo "$plist" | /usr/libexec/PlistBuddy -c 'Print :Entitlements:get-task-allow' /dev/stdin 2>/dev/null || true)"
-            [ "$gta" = "false" ] || continue
-            appid="$(echo "$plist" | /usr/libexec/PlistBuddy -c 'Print :Entitlements:application-identifier' /dev/stdin 2>/dev/null || true)"
-            case "$appid" in
-              *".$BUNDLE_ID" )
-                name="$(echo "$plist" | /usr/libexec/PlistBuddy -c 'Print :Name' /dev/stdin 2>/dev/null || true)"
-                [ -n "$name" ] || continue
-                DIST_PROFILE_NAME="$name"
-                break
-                ;;
-            esac
-          done
-          shopt -u nullglob
-
-          test -n "$DIST_PROFILE_NAME" || (echo "No App Store (distribution) profile found for $BUNDLE_ID" && exit 1)
-          echo "DIST_PROFILE_NAME=$DIST_PROFILE_NAME" >> "$CM_ENV"
-
-      - name: Create export options plist (manual export)
-        script: |
-          cat > /tmp/export_options.plist <<PLIST
-          <?xml version="1.0" encoding="UTF-8"?>
-          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-          <plist version="1.0">
-          <dict>
-            <key>method</key>
-            <string>app-store</string>
-            <key>signingStyle</key>
-            <string>manual</string>
-            <key>teamID</key>
-            <string>$CM_DEVELOPMENT_TEAM</string>
-            <key>signingCertificate</key>
-            <string>Apple Distribution</string>
-            <key>provisioningProfiles</key>
-            <dict>
-              <key>com.monkeyboomball.app</key>
-              <string>$DIST_PROFILE_NAME</string>
-            </dict>
-          </dict>
-          </plist>
-          PLIST
-
-      - name: Archive (xcodebuild, no identity override)
-        script: |
-          set -o pipefail
-          ARCHIVE_PATH="/Users/builder/clone/build/ios/xcarchive/MonkeyBoomBall.xcarchive"
-          xcodebuild \
-            -workspace "Monkey Boom Ball.xcworkspace" \
-            -scheme "Monkey Boom Ball" \
-            -configuration Release \
-            -archivePath "$ARCHIVE_PATH" \
-            -sdk iphoneos \
-            archive \
-            COMPILER_INDEX_STORE_ENABLE=NO \
-            DEVELOPMENT_TEAM="$CM_DEVELOPMENT_TEAM" \
-            IPHONEOS_DEPLOYMENT_TARGET=18.5
-
-      - name: Export IPA (xcodebuild)
-        script: |
-          set -o pipefail
-          ARCHIVE_PATH="/Users/builder/clone/build/ios/xcarchive/MonkeyBoomBall.xcarchive"
-          EXPORT_PATH="build/ios/ipa"
-          mkdir -p "$EXPORT_PATH"
-          xcodebuild \
-            -exportArchive \
-            -archivePath "$ARCHIVE_PATH" \
-            -exportPath "$EXPORT_PATH" \
-            -exportOptionsPlist /tmp/export_options.plist
+          xcode-project build-ipa \
+            --project "Monkey Boom Ball.xcworkspace" \
+            --scheme "Monkey Boom Ball" \
+            --config Release
 
     artifacts:
       - build/ios/ipa/*.ipa
