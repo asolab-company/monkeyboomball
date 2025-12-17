@@ -3,9 +3,11 @@ workflows:
     name: iOS Workflow
     environment:
       xcode: 16.4
+
       ios_signing:
         distribution_type: app_store
         bundle_identifier: com.monkeyboomball.app
+
       groups:
         - MonkeyBoomBall
 
@@ -17,7 +19,7 @@ workflows:
           test -n "$APP_STORE_CONNECT_PRIVATE_KEY" || (echo "PRIVATE_KEY empty" && exit 1)
           test -n "$CM_DEVELOPMENT_TEAM" || (echo "CM_DEVELOPMENT_TEAM empty (Apple Team ID)" && exit 1)
 
-      - name: Fetch signing files
+      - name: Fetch signing files (App Store + Development)
         script: |
           app-store-connect fetch-signing-files \
             "com.monkeyboomball.app" \
@@ -27,6 +29,17 @@ workflows:
             --private-key "$APP_STORE_CONNECT_PRIVATE_KEY" \
             --create
 
+          app-store-connect fetch-signing-files \
+            "com.monkeyboomball.app" \
+            --type IOS_APP_DEVELOPMENT \
+            --issuer-id "$APP_STORE_CONNECT_ISSUER_ID" \
+            --key-id "$APP_STORE_CONNECT_KEY_ID" \
+            --private-key "$APP_STORE_CONNECT_PRIVATE_KEY" \
+            --create
+
+          echo "=== Provisioning profiles installed ==="
+          ls -la "$HOME/Library/MobileDevice/Provisioning Profiles" || true
+
       - name: Setup keychain
         script: |
           keychain initialize
@@ -34,7 +47,6 @@ workflows:
 
       - name: Install CocoaPods
         script: |
-          # если Pods добавлены — в CI обязательно pod install
           if [ -f "Podfile" ]; then
             gem install cocoapods -N || true
             pod repo update
@@ -43,7 +55,7 @@ workflows:
             echo "No Podfile found, skip pod install"
           fi
 
-      - name: Create export options plist
+      - name: Create export options plist (App Store)
         script: |
           cat > /tmp/export_options.plist <<PLIST
           <?xml version="1.0" encoding="UTF-8"?>
@@ -65,9 +77,11 @@ workflows:
           </dict>
           </plist>
           PLIST
+
+          echo "=== export options ==="
           plutil -p /tmp/export_options.plist
 
-      - name: Archive (xcodebuild)
+      - name: Archive (xcodebuild, automatic signing)
         script: |
           set -o pipefail
 
@@ -80,6 +94,7 @@ workflows:
             -configuration Release \
             -archivePath "$ARCHIVE_PATH" \
             -sdk iphoneos \
+            -allowProvisioningUpdates \
             archive \
             COMPILER_INDEX_STORE_ENABLE=NO \
             DEVELOPMENT_TEAM="$CM_DEVELOPMENT_TEAM" \
@@ -87,8 +102,6 @@ workflows:
             PROVISIONING_PROFILE_SPECIFIER="" \
             PROVISIONING_PROFILE="" \
             | tee "$LOG_PATH"
-
-          # если xcodebuild вернул ошибку, pipeline уже упадёт из-за pipefail
 
       - name: Export IPA (xcodebuild)
         script: |
@@ -105,6 +118,7 @@ workflows:
             -archivePath "$ARCHIVE_PATH" \
             -exportPath "$EXPORT_PATH" \
             -exportOptionsPlist /tmp/export_options.plist \
+            -allowProvisioningUpdates \
             | tee "$LOG_PATH"
 
     artifacts:
