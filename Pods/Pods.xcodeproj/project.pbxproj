@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 71;
+	objectVersion = 77;
 	objects = {
 
 /* Begin PBXAggregateTarget section */
@@ -17,7 +17,6 @@
 				82803557B0195332B49103B3DA6AC573 /* PBXTargetDependency */,
 			);
 			name = UnityAds;
-			productName = UnityAds;
 		};
 /* End PBXAggregateTarget section */
 
@@ -50,25 +49,25 @@
 /* Begin PBXFileReference section */
 		0A038DE33DDFAD675B7F6BB6A00A9CC2 /* Pods-Monkey Boom Ball-resources.sh */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.script.sh; path = "Pods-Monkey Boom Ball-resources.sh"; sourceTree = "<group>"; };
 		0CC6DC92E14A82063956ABDB51776CE6 /* Pods-Monkey Boom Ball-umbrella.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "Pods-Monkey Boom Ball-umbrella.h"; sourceTree = "<group>"; };
-		2EF6F46671A6A591BF1BDF2AB7378DEC /* UnityAds.xcframework */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = wrapper.xcframework; path = UnityAds.xcframework; sourceTree = "<group>"; };
+		2EF6F46671A6A591BF1BDF2AB7378DEC /* UnityAds.xcframework */ = {isa = PBXFileReference; includeInIndex = 1; path = UnityAds.xcframework; sourceTree = "<group>"; };
 		384DDA2CB25005BD6479B5987C619DD4 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
-		4FCE96594A0A691177E88B6BDEF6B6E0 /* omsdk-v1.js */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.javascript; name = "omsdk-v1.js"; path = "UnityAds.xcframework/ios-arm64/UnityAds.framework/omsdk-v1.js"; sourceTree = "<group>"; };
+		4FCE96594A0A691177E88B6BDEF6B6E0 /* omsdk-v1.js */ = {isa = PBXFileReference; includeInIndex = 1; name = "omsdk-v1.js"; path = "UnityAds.xcframework/ios-arm64/UnityAds.framework/omsdk-v1.js"; sourceTree = "<group>"; };
 		6253399139BAA2D8AC7E25C6A9C33048 /* Pods-Monkey Boom Ball-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "Pods-Monkey Boom Ball-dummy.m"; sourceTree = "<group>"; };
-		6B3BA137766FF0005EF1FB4C07A5023F /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = "UnityAds.xcframework/ios-arm64/UnityAds.framework/PrivacyInfo.xcprivacy"; sourceTree = "<group>"; };
+		6B3BA137766FF0005EF1FB4C07A5023F /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; name = PrivacyInfo.xcprivacy; path = "UnityAds.xcframework/ios-arm64/UnityAds.framework/PrivacyInfo.xcprivacy"; sourceTree = "<group>"; };
 		6E68B3FB54CA1E97B35630859188771F /* Pods-Monkey Boom Ball.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-Monkey Boom Ball.debug.xcconfig"; sourceTree = "<group>"; };
 		724543F0F551E68D5E21A345AFDA1DE2 /* Pods-Monkey Boom Ball-Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "Pods-Monkey Boom Ball-Info.plist"; sourceTree = "<group>"; };
 		7E5CD95ECBE6C7E8DD19922061B5575D /* UnityAds-xcframeworks.sh */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.script.sh; path = "UnityAds-xcframeworks.sh"; sourceTree = "<group>"; };
 		8044B477F302C451303D0A1E438492B9 /* Pods-Monkey Boom Ball-acknowledgements.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "Pods-Monkey Boom Ball-acknowledgements.plist"; sourceTree = "<group>"; };
 		839E84A42E3F862E2CCB890ECD124294 /* ResourceBundle-UnityAdsResources-UnityAds-Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "ResourceBundle-UnityAdsResources-UnityAds-Info.plist"; sourceTree = "<group>"; };
 		98457CF858B77EF04257CC1F84447D45 /* Pods-Monkey Boom Ball.modulemap */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.module; path = "Pods-Monkey Boom Ball.modulemap"; sourceTree = "<group>"; };
-		9D940727FF8FB9C785EB98E56350EF41 /* Podfile */ = {isa = PBXFileReference; explicitFileType = text.script.ruby; includeInIndex = 1; indentWidth = 2; name = Podfile; path = ../Podfile; sourceTree = SOURCE_ROOT; tabWidth = 2; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
+		9D940727FF8FB9C785EB98E56350EF41 /* Podfile */ = {isa = PBXFileReference; explicitFileType = text.script.ruby; includeInIndex = 1; indentWidth = 2; lastKnownFileType = text; name = Podfile; path = ../Podfile; sourceTree = SOURCE_ROOT; tabWidth = 2; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
 		9E21974FB3B3AC2A99ACA77A0C607BBF /* Pods-Monkey Boom Ball.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-Monkey Boom Ball.release.xcconfig"; sourceTree = "<group>"; };
-		9E9F8AA0E6B407385DC12B4B19A3959F /* Pods_Monkey_Boom_Ball.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Monkey_Boom_Ball.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		9E9F8AA0E6B407385DC12B4B19A3959F /* Pods-Monkey Boom Ball */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; name = "Pods-Monkey Boom Ball"; path = Pods_Monkey_Boom_Ball.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		A01F08C61465DF0793078E9510D52E89 /* Pods-Monkey Boom Ball-acknowledgements.markdown */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; path = "Pods-Monkey Boom Ball-acknowledgements.markdown"; sourceTree = "<group>"; };
 		B01AEA2BFAEE02B72EAADCE2A6E073C3 /* UnityAds.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = UnityAds.debug.xcconfig; sourceTree = "<group>"; };
-		BEA9321BE3FAE804324B3495F4B39C10 /* UnityAdsResources.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = UnityAdsResources.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
+		BEA9321BE3FAE804324B3495F4B39C10 /* UnityAds-UnityAdsResources */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; name = "UnityAds-UnityAdsResources"; path = UnityAdsResources.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		C007000A7A2D2C38D3C99F88AF14929C /* UnityAds.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = UnityAds.release.xcconfig; sourceTree = "<group>"; };
-		C7EB998641B607F3F668D414BCB215A4 /* omid-session-client-v1.js */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.javascript; name = "omid-session-client-v1.js"; path = "UnityAds.xcframework/ios-arm64/UnityAds.framework/omid-session-client-v1.js"; sourceTree = "<group>"; };
+		C7EB998641B607F3F668D414BCB215A4 /* omid-session-client-v1.js */ = {isa = PBXFileReference; includeInIndex = 1; name = "omid-session-client-v1.js"; path = "UnityAds.xcframework/ios-arm64/UnityAds.framework/omid-session-client-v1.js"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -109,14 +108,15 @@
 				A9E6665F70A990867FCA1FB214104EA1 /* Resources */,
 				09EE274BBAC5FE7588999C383977DAA8 /* Support Files */,
 			);
+			name = UnityAds;
 			path = UnityAds;
 			sourceTree = "<group>";
 		};
 		2EDD622CF1C580D21E729C6DF2CA7E50 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				9E9F8AA0E6B407385DC12B4B19A3959F /* Pods_Monkey_Boom_Ball.framework */,
-				BEA9321BE3FAE804324B3495F4B39C10 /* UnityAdsResources.bundle */,
+				9E9F8AA0E6B407385DC12B4B19A3959F /* Pods-Monkey Boom Ball */,
+				BEA9321BE3FAE804324B3495F4B39C10 /* UnityAds-UnityAdsResources */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -227,7 +227,7 @@
 			);
 			name = "UnityAds-UnityAdsResources";
 			productName = UnityAdsResources;
-			productReference = BEA9321BE3FAE804324B3495F4B39C10 /* UnityAdsResources.bundle */;
+			productReference = BEA9321BE3FAE804324B3495F4B39C10 /* UnityAds-UnityAdsResources */;
 			productType = "com.apple.product-type.bundle";
 		};
 		56AC7D250B9A54D0B9DB6A1891305E08 /* Pods-Monkey Boom Ball */ = {
@@ -246,7 +246,7 @@
 			);
 			name = "Pods-Monkey Boom Ball";
 			productName = Pods_Monkey_Boom_Ball;
-			productReference = 9E9F8AA0E6B407385DC12B4B19A3959F /* Pods_Monkey_Boom_Ball.framework */;
+			productReference = 9E9F8AA0E6B407385DC12B4B19A3959F /* Pods-Monkey Boom Ball */;
 			productType = "com.apple.product-type.framework";
 		};
 /* End PBXNativeTarget section */
@@ -267,6 +267,8 @@
 				en,
 			);
 			mainGroup = CF1408CF629C7361332E53B88F7BD30C;
+			minimizedProjectReferenceProxies = 0;
+			preferredProjectObjectVersion = 77;
 			productRefGroup = 2EDD622CF1C580D21E729C6DF2CA7E50 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -307,13 +309,9 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/UnityAds/UnityAds-xcframeworks-input-files.xcfilelist",
 			);
-			inputPaths = (
-			);
 			name = "[CP] Copy XCFrameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/UnityAds/UnityAds-xcframeworks-output-files.xcfilelist",
-			);
-			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -379,11 +377,11 @@
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
-				CODE_SIGN_IDENTITY = "Apple Development";
-				CODE_SIGN_STYLE = Automatic;
+				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
 				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = YES;
-				DEVELOPMENT_TEAM = "";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
@@ -391,7 +389,7 @@
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				INFOPLIST_FILE = "Target Support Files/Pods-Monkey Boom Ball/Pods-Monkey Boom Ball-Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 18.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -402,16 +400,11 @@
 				OTHER_LDFLAGS = "";
 				OTHER_LIBTOOLFLAGS = "";
 				PODS_ROOT = "$(SRCROOT)";
-				PRODUCT_BUNDLE_IDENTIFIER = com.monkeyboomball.app;
+				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
-				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
-				SUPPORTS_MACCATALYST = NO;
-				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
-				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
@@ -606,11 +599,11 @@
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
-				CODE_SIGN_IDENTITY = "Apple Development";
-				CODE_SIGN_STYLE = Automatic;
+				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
 				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = YES;
-				DEVELOPMENT_TEAM = "";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
@@ -618,7 +611,7 @@
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				INFOPLIST_FILE = "Target Support Files/Pods-Monkey Boom Ball/Pods-Monkey Boom Ball-Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 18.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -629,16 +622,11 @@
 				OTHER_LDFLAGS = "";
 				OTHER_LIBTOOLFLAGS = "";
 				PODS_ROOT = "$(SRCROOT)";
-				PRODUCT_BUNDLE_IDENTIFIER = com.monkeyboomball.app;
+				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
-				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
-				SUPPORTS_MACCATALYST = NO;
-				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
-				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
 			};
